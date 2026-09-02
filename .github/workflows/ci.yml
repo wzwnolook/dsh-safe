@@ -26,14 +26,21 @@ jobs:
         run: echo "value=$(dsh --version 2>&1)" >> "$GITHUB_OUTPUT"
 
       - name: Smoke test against latest dsh
+        id: smoke-latest
         run: bash tests/smoke-installed.sh
 
-      - name: Update verified version badge (main only)
+      - name: Write latest badge (always runs)
         if: github.ref == 'refs/heads/main' && matrix.node == '22'
         env:
           VER: ${{ steps.ver.outputs.value }}
+          STATUS: ${{ steps.smoke-latest.outcome }}
         run: |
-          printf '{"schemaVersion":1,"label":"dsh","message":"%s","color":"brightgreen"}\n' "$VER" > .github/verified-dsh-version.json
+          if [ "$STATUS" = "success" ]; then
+            LABEL="verified"; LABEL_COLOR="brightgreen"
+          else
+            LABEL="dsh latest"; LABEL_COLOR="red"
+          fi
+          printf '{"schemaVersion":1,"label":"%s","message":"%s","color":"lightgrey","labelColor":"%s"}\n' "$LABEL" "$VER" "$LABEL_COLOR" > .github/verified-dsh-version.json
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .github/verified-dsh-version.json
@@ -58,17 +65,23 @@ jobs:
         run: echo "value=$(dsh --version 2>&1)" >> "$GITHUB_OUTPUT"
 
       - name: Smoke test against alpha dsh
-        id: alpha-smoke
+        id: smoke-alpha
         continue-on-error: true
         run: |
           bash tests/smoke-installed.sh
 
-      - name: Update alpha badge on success (main only)
-        if: github.ref == 'refs/heads/main' && steps.alpha-smoke.outcome == 'success'
+      - name: Write alpha badge (always runs)
+        if: github.ref == 'refs/heads/main'
         env:
           VER: ${{ steps.alpha-ver.outputs.value }}
+          STATUS: ${{ steps.smoke-alpha.outcome }}
         run: |
-          printf '{"schemaVersion":1,"label":"dsh alpha","message":"%s","color":"brightgreen"}\n' "$VER" > .github/verified-dsh-alpha-version.json
+          if [ "$STATUS" = "success" ]; then
+            LABEL="verified"; LABEL_COLOR="brightgreen"
+          else
+            LABEL="dsh alpha"; LABEL_COLOR="red"
+          fi
+          printf '{"schemaVersion":1,"label":"%s","message":"%s","color":"lightgrey","labelColor":"%s"}\n' "$LABEL" "$VER" "$LABEL_COLOR" > .github/verified-dsh-alpha-version.json
           printf '### dsh alpha compatibility\n```\ndsh: %s — smoke passed\n```\n' "$VER" >> "$GITHUB_STEP_SUMMARY"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
