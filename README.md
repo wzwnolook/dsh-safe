@@ -1,8 +1,10 @@
 # dsh-safe
 
-- **CI** &nbsp;→ [![CI](https://github.com/wzwnolook/dsh-safe/actions/workflows/ci.yml/badge.svg)](https://github.com/wzwnolook/dsh-safe/actions)
-- **dsh (latest)** &nbsp;→ [![dsh](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wzwnolook/dsh-safe/main/.github/verified-dsh-version.json)](https://github.com/wzwnolook/dsh-safe/actions)
-- **dsh (alpha)** &nbsp;→ [![dsh alpha](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wzwnolook/dsh-safe/main/.github/verified-dsh-alpha-version.json)](https://github.com/wzwnolook/dsh-safe/actions)
+| Check | Status |
+|:---|:---:|
+| **CI** | [![CI](https://github.com/wzwnolook/dsh-safe/actions/workflows/ci.yml/badge.svg)](https://github.com/wzwnolook/dsh-safe/actions) |
+| **dsh latest** | [![dsh latest verified](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wzwnolook/dsh-safe/main/.github/verified-dsh-version.json)](https://github.com/wzwnolook/dsh-safe/actions) |
+| **dsh alpha** | [![dsh alpha verified](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wzwnolook/dsh-safe/main/.github/verified-dsh-alpha-version.json)](https://github.com/wzwnolook/dsh-safe/actions) |
 
 Requires **Node.js ^22.19 || >=24.0.0**.  Works with **dsh >= 0.1.0** (no source modification needed).
 
