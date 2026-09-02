@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# Fake dsh stub for dsh-safe CLI tests. Behavior is driven by FAKE_MODE.
+set -u
+
+# Log every invocation: args + whether DSH_SAFE_READY_FILE is set.
+if [ -n "${FAKE_LOG:-}" ]; then
+  if [ -n "${DSH_SAFE_READY_FILE:-}" ]; then ready=1; else ready=0; fi
+  printf 'args: %s | ready=%s\n' "$*" "$ready" >> "$FAKE_LOG"
+fi
+
+# --dump-config succeeds in every mode.
+for a in "$@"; do
+  if [ "$a" = "--dump-config" ]; then
+    printf -- '- id: bad-plugin\n  name: bad-plugin\n'
+    exit 0
+  fi
+done
+
+mode="${FAKE_MODE:-ok}"
+
+case "$mode" in
+  ok)
+    ;;
+  plugin-fail | import-fail)
+    # Succeed only once some --patch <file> disables bad-plugin (ids may be
+    # written YAML-quoted).
+    prev=""
+    found=1
+    for a in "$@"; do
+      if [ "$prev" = "--patch" ] && [ -f "$a" ] && grep -qE 'id: "?bad-plugin"?' "$a"; then
+        found=0
+      fi
+      prev="$a"
+    done
+    if [ "$found" -ne 0 ]; then
+      if [ "$mode" = "import-fail" ]; then
+        # Real dsh 0.1.0-rc.7 ERR_MODULE_NOT_FOUND boot crash format.
+        echo "Error: dsh: plugin tree failed to load: failed to apply loader entry include (cordis:include): failed to import loader entry bad-plugin (./bad-plugin.mjs): Cannot find module '/tmp/fake/bad-plugin.mjs' imported from /tmp/fake/" >&2
+        echo "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/fake/bad-plugin.mjs' imported from /tmp/fake/" >&2
+      else
+        echo 'bad-plugin: Error boom' >&2
+      fi
+      exit 1
+    fi
+    ;;
+  rotate-id)
+    # Id-less entry: the loader assigns a random hex id every boot, so the same
+    # row fails with the same name but a different id on each attempt. The id
+    # derives from the invocation count in FAKE_LOG (truncated per test run),
+    # keeping the test deterministic.
+    n=$(wc -l < "${FAKE_LOG:?FAKE_LOG required}")
+    rid=$(printf '%08x' "$n")
+    echo "Error: dsh: plugin tree failed to load: failed to apply loader entry include (cordis:include): failed to import loader entry $rid (./does-not-matter.mjs): Cannot find module './does-not-matter.mjs' imported from /tmp/fake/" >&2
+    exit 1
+    ;;
+  no-effect)
+    # The disable overlay never addresses this entry: same id+name every time.
+    echo "Error: dsh: plugin tree failed to load: failed to apply loader entry include (cordis:include): failed to import loader entry unpatchable (./unpatchable.mjs): Cannot find module './unpatchable.mjs' imported from /tmp/fake/" >&2
+    exit 1
+    ;;
+  fail-include)
+    # Config-level failure: only the include frame exists (duplicate row id).
+    echo 'Error: dsh: plugin tree failed to load: failed to apply loader entry include (cordis:include): duplicate loader entry id: foo' >&2
+    exit 1
+    ;;
+  special-id-fail)
+    # Succeed only once some --patch <file> disables "@weird/pkg" — an id that
+    # is invalid YAML when written unquoted (leading @).
+    prev=""
+    found=1
+    for a in "$@"; do
+      if [ "$prev" = "--patch" ] && [ -f "$a" ] && grep -qE 'id: "?@weird/pkg"?' "$a"; then
+        found=0
+      fi
+      prev="$a"
+    done
+    if [ "$found" -ne 0 ]; then
+      echo 'Error: dsh: plugin tree failed to load: failed to apply loader entry include (cordis:include): failed to import loader entry @weird/pkg (@weird/pkg): Cannot find module ...' >&2
+      exit 1
+    fi
+    ;;
+  no-ready-ok)
+    # Silent exit 0 without a ready signal (observer dead / event-loop drain).
+    exit 0
+    ;;
+  ready-then-crash)
+    # Contract probe: a ready signal means the tree settled; a crash after
+    # that is runtime scope, not a boot failure.
+    if [ -n "${DSH_SAFE_READY_FILE:-}" ]; then
+      touch "$DSH_SAFE_READY_FILE"
+    fi
+    echo 'dsh: plugin tree failed to load: post-settle crash' >&2
+    exit 1
+    ;;
+  yaml-if-bad)
+    # Fail with a YAML error while the profile's cordis.patch.yml carries the
+    # '# bad yaml' marker line.
+    pf=""
+    prev=""
+    for a in "$@"; do
+      if [ "$prev" = "--profile" ] || [ "$prev" = "-p" ]; then pf="$a"; fi
+      case "$a" in --profile=*) pf="${a#--profile=}" ;; esac
+      prev="$a"
+    done
+    cfg="${DSH_HOME:?DSH_HOME required}/profiles/$pf/cordis.patch.yml"
+    if [ -n "$pf" ] && [ -f "$cfg" ] && grep -q '# bad yaml' "$cfg"; then
+      echo 'YAMLException: failed to parse' >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "fake-dsh: unknown FAKE_MODE=$mode" >&2
+    exit 2
+    ;;
+esac
+
+# ok path: signal readiness when supervised, then exit 0.
+if [ -n "${DSH_SAFE_READY_FILE:-}" ]; then
+  touch "$DSH_SAFE_READY_FILE"
+fi
+exit 0

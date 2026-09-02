@@ -1,0 +1,21 @@
+# Directories
+node_modules/
+.git/
+.github/
+tests/
+bench.mjs
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# TypeScript (not used in dsh-safe, but generated if tsconfig is present)
+lib/
+*.tsbuildinfo

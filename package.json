@@ -1,0 +1,45 @@
+{
+  "name": "@deepseek-ai/dsh-safe",
+  "version": "0.1.0",
+  "description": "Zero-config boot-safe wrapper for dsh: auto-disables failing plugins, restores broken configs via --patch overlay isolation. No dsh source changes needed.",
+  "keywords": [
+    "deepseek",
+    "dsh",
+    "deepseek-harness",
+    "boot-safe",
+    "auto-recovery",
+    "plugin",
+    "self-healing",
+    "rollback",
+    "startup"
+  ],
+  "homepage": "https://github.com/wzwnolook/dsh-safe",
+  "bugs": {
+    "url": "https://github.com/wzwnolook/dsh-safe/issues"
+  },
+  "license": "MIT",
+  "author": "DeepSeek",
+  "type": "module",
+  "bin": {
+    "dsh-safe": "bin/dsh-safe.mjs"
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\""
+  },
+  "files": [
+    "bin/",
+    "ready.mjs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.19 || >=24"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzwnolook/dsh-safe.git"
+  }
+}

@@ -1,0 +1,72 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - run: npm test
+
+      - name: Install latest dsh (latest tag)
+        run: npm install -g @deepseek-ai/dsh
+
+      - name: Record dsh version
+        id: ver
+        run: echo "value=$(dsh --version 2>&1)" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test against latest dsh
+        run: bash tests/smoke-installed.sh
+
+      - name: Update verified version badge (main only)
+        if: github.ref == 'refs/heads/main' && matrix.node == '22'
+        env:
+          VER: ${{ steps.ver.outputs.value }}
+        run: |
+          printf '{"schemaVersion":1,"label":"dsh","message":"%s","color":"brightgreen"}\n' "$VER" > .github/verified-dsh-version.json
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .github/verified-dsh-version.json
+          git commit -m "badge: verified dsh $VER [skip ci]" && git push
+
+  smoke-alpha:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install alpha dsh (alpha tag)
+        run: npm install -g @deepseek-ai/dsh@alpha
+
+      - name: Record alpha dsh version
+        id: alpha-ver
+        run: echo "value=$(dsh --version 2>&1)" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test against alpha dsh
+        id: alpha-smoke
+        continue-on-error: true
+        run: |
+          bash tests/smoke-installed.sh
+
+      - name: Update alpha badge on success (main only)
+        if: github.ref == 'refs/heads/main' && steps.alpha-smoke.outcome == 'success'
+        env:
+          VER: ${{ steps.alpha-ver.outputs.value }}
+        run: |
+          printf '{"schemaVersion":1,"label":"dsh alpha","message":"%s","color":"brightgreen"}\n' "$VER" > .github/verified-dsh-alpha-version.json
+          printf '### dsh alpha compatibility\n```\ndsh: %s — smoke passed\n```\n' "$VER" >> "$GITHUB_STEP_SUMMARY"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .github/verified-dsh-alpha-version.json
+          git commit -m "badge: verified dsh alpha $VER [skip ci]" && git push
