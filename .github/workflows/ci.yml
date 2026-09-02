@@ -37,7 +37,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .github/verified-dsh-version.json
-          git commit -m "badge: verified dsh $VER [skip ci]" && git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git commit -m "badge: verified dsh $VER [skip ci]" && git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
 
   smoke-alpha:
     needs: test
@@ -73,4 +73,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .github/verified-dsh-alpha-version.json
-          git commit -m "badge: verified dsh alpha $VER [skip ci]" && git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git commit -m "badge: verified dsh alpha $VER [skip ci]" && git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
