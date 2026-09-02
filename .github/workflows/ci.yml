@@ -38,7 +38,7 @@ jobs:
           if [ "$STATUS" = "success" ]; then
             LABEL="verified"; LABEL_COLOR="brightgreen"
           else
-            LABEL="dsh latest"; LABEL_COLOR="red"
+            LABEL="failed"; LABEL_COLOR="red"
           fi
           printf '{"schemaVersion":1,"label":"%s","message":"%s","color":"lightgrey","labelColor":"%s"}\n' "$LABEL" "$VER" "$LABEL_COLOR" > .github/verified-dsh-version.json
           git config user.name "github-actions[bot]"
@@ -79,7 +79,7 @@ jobs:
           if [ "$STATUS" = "success" ]; then
             LABEL="verified"; LABEL_COLOR="brightgreen"
           else
-            LABEL="dsh alpha"; LABEL_COLOR="red"
+            LABEL="failed"; LABEL_COLOR="red"
           fi
           printf '{"schemaVersion":1,"label":"%s","message":"%s","color":"lightgrey","labelColor":"%s"}\n' "$LABEL" "$VER" "$LABEL_COLOR" > .github/verified-dsh-alpha-version.json
           printf '### dsh alpha compatibility\n```\ndsh: %s — smoke passed\n```\n' "$VER" >> "$GITHUB_STEP_SUMMARY"
