@@ -1,5 +1,5 @@
 {
-  "name": "@wzwnolook/dsh-safe",
+  "name": "@wzwolook/dsh-safe",
   "version": "0.1.0",
   "description": "Zero-config boot-safe wrapper for dsh: auto-disables failing plugins, restores broken configs via --patch overlay isolation. No dsh source changes needed.",
   "keywords": [

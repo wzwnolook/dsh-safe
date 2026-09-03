@@ -22,7 +22,7 @@
  * Activated by setting the `DSH_SAFE_READY_FILE` environment variable (the
  * dsh-safe CLI wrapper sets it before spawning the child process).
  *
- * @module @wzwnolook/dsh-safe/ready
+ * @module @wzwolook/dsh-safe/ready
  */
 
 import { writeFileSync } from 'node:fs'

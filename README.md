@@ -15,7 +15,7 @@ working configuration, so dsh starts again — all without modifying any dsh sou
 ## Quick start
 
 ```bash
-npm install -g @wzwnolook/dsh-safe
+npm install -g @wzwolook/dsh-safe
 echo 'alias dsh="dsh-safe"' >> ~/.zshrc && source ~/.zshrc  # you can also run dsh-safe directly
 # PowerShell (Windows): add `Set-Alias dsh dsh-safe` to $PROFILE instead 
 
