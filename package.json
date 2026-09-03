@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-safe",
+  "name": "@wzwnolook/dsh-safe",
   "version": "0.1.0",
   "description": "Zero-config boot-safe wrapper for dsh: auto-disables failing plugins, restores broken configs via --patch overlay isolation. No dsh source changes needed.",
   "keywords": [
@@ -18,7 +18,7 @@
     "url": "https://github.com/wzwnolook/dsh-safe/issues"
   },
   "license": "MIT",
-  "author": "DeepSeek",
+  "author": "wzwnolook",
   "type": "module",
   "bin": {
     "dsh-safe": "bin/dsh-safe.mjs"
